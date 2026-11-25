@@ -1,0 +1,38 @@
+<div class="surface-card mx-auto w-full max-w-2xl p-6 sm:p-8 shadow-lg">
+  @let videoUrl = summarizerForm.url();
+  <form [formRoot]="summarizerForm" class="flex flex-col gap-5">
+    <label for="url" class="flex flex-col gap-2">
+      <span class="form-field-label"
+        >Public YouTube URL
+        @if (videoUrl.required()) {
+          *
+        }
+        :</span
+      >
+      <input id="url" [formField]="summarizerForm.url" class="form-input" />
+    </label>
+
+    @let hasErrors = videoUrl.invalid() && (videoUrl.dirty() || videoUrl.touched());
+    @if (hasErrors) {
+      <ul class="error-block list-inside list-disc space-y-1 text-sm">
+        @for (err of videoUrl.errors(); track err.kind) {
+          <li>{{ err.message }}</li>
+        }
+      </ul>
+    }
+
+    <label for="mimeType" class="flex flex-col gap-2">
+      <span class="form-field-label">Mime type:</span>
+      <input
+        id="mimeType"
+        [formField]="summarizerForm.mime_type"
+        class="form-input read-only:cursor-not-allowed read-only:opacity-70"
+      />
+    </label>
+
+    @let isSubmitting = summarizerForm().submitting();
+    <button type="submit" [disabled]="isSubmitting" class="btn-primary mt-2 w-full cursor-pointer">
+      {{ isSubmitting ? 'Summarizing...' : 'Summarize' }}
+    </button>
+  </form>
+</div>

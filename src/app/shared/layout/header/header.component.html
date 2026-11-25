@@ -1,0 +1,8 @@
+<header class="header-card">
+  <h2 class="header-title">Firebase AI Logic Server Prompt Template Demo</h2>
+  @for (item of links; track item.link) {
+    <a [routerLink]="item.link" [attr.aria-label]="item.alt">
+      {{ item.text }}
+    </a>
+  }
+</header>

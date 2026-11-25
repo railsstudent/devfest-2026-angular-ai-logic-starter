@@ -1,0 +1,34 @@
+<div class="surface-card mx-auto w-full max-w-2xl p-6 sm:p-8 shadow-lg">
+  @let country = countryForm.country();
+  <form [formRoot]="countryForm" class="flex flex-col gap-5">
+    <label for="country" class="flex flex-col gap-2">
+      <span class="form-field-label"
+        >Country
+        @if (country.required()) {
+          *
+        }
+        :</span
+      >
+      <select id="country" [formField]="countryForm.country" class="form-input">
+        <option value="">---Select a country---</option>
+        @for (c of countries; track c.code) {
+          <option [value]="c.name">{{ c.name }}</option>
+        }
+      </select>
+    </label>
+
+    @let hasErrors = country.invalid() && (country.dirty() || country.touched());
+    @if (hasErrors) {
+      <ul class="error-block list-inside list-disc space-y-1 text-sm">
+        @for (err of country.errors(); track err.kind) {
+          <li>{{ err.message }}</li>
+        }
+      </ul>
+    }
+
+    @let isSubmitting = countryForm().submitting();
+    <button type="submit" [disabled]="isSubmitting" class="btn-primary mt-2 w-full cursor-pointer">
+      {{ isSubmitting ? 'Generating...' : 'Generate' }}
+    </button>
+  </form>
+</div>

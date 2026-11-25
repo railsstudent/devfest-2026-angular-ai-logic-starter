@@ -1,0 +1,22 @@
+/* header styles */
+.header-card {
+  @apply relative flex items-center justify-center text-center mb-6 sm:mb-8 min-h-[4rem];
+}
+
+.header-title {
+  @apply text-xl sm:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-accent to-emerald-400 px-12;
+}
+
+/* app styles */
+.app-shell {
+  @apply min-h-screen bg-app-bg text-primary flex flex-col p-4 sm:p-6 lg:p-8;
+}
+
+.app-container {
+  @apply w-full max-w-[1280px] mx-auto flex-1 flex flex-col;
+}
+
+/* footer styles */
+.footer-card {
+  @apply px-6 text-center text-sm;
+}
