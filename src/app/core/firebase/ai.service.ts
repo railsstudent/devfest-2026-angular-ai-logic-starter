@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import type { Content, GenerativeContentBlob, TemplateGenerativeModel, TemplateRequest } from 'firebase/ai';
+import type { GenerativeContentBlob, Part, TemplateGenerativeModel, TemplateRequest } from 'firebase/ai';
 import { getTemplateGenerativeModel } from 'firebase/ai';
 import { ConfigService } from './config.service';
 
@@ -15,12 +15,17 @@ export class AiService {
     return this.#templateModel;
   }
 
-  async generateResponse(request: TemplateRequest): Promise<Content | undefined> {
+  async generateResponse(request: TemplateRequest): Promise<Part | undefined> {
     const result = await this.getTemplateModel().generateContent(request);
     const response = result.response;
 
     const firstContent = (response.candidates || []).find((c) => c.content.parts.length > 0);
-    return firstContent?.content;
+    if (firstContent?.content) {
+      const firstPart = firstContent?.content.parts.find((part) => part.type === 'text' && !!part.text);
+      return firstPart;
+    }
+
+    return undefined;
   }
 
   async generateInlineData(request: TemplateRequest): Promise<GenerativeContentBlob | undefined> {

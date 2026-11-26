@@ -1,4 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { AiService } from '@/core/firebase/ai.service';
+import { ConfigService } from '@/core/firebase/config.service';
+import { Component, inject, signal } from '@angular/core';
 import { form, FormField, FormRoot, pattern, readonly, required } from '@angular/forms/signals';
 
 interface VideoSummary {
@@ -20,6 +22,9 @@ const DEFAULT_VIDEO_SUMMARY: VideoSummary = {
   templateUrl: './summarizer.component.html',
 })
 export default class SummarizerComponent {
+  #aiService = inject(AiService);
+  #configService = inject(ConfigService);
+
   summarizerModel = signal({
     url: '',
     mime_type: 'video/mp4',
@@ -43,9 +48,24 @@ export default class SummarizerComponent {
     },
     {
       submission: {
-        action: () => {
-          console.log('submitted', this.summarizerModel());
-          return Promise.resolve(undefined);
+        action: async () => {
+          this.videoSummary.set(DEFAULT_VIDEO_SUMMARY);
+          try {
+            const templateId = this.#configService.appConfig().summarizeTemplateId;
+            const result = await this.#aiService.generateResponse({
+              templateId,
+              templateVariables: this.summarizerModel(),
+            });
+
+            const videoSummary =
+              result && result.type === 'text' ? (JSON.parse(result.text) as VideoSummary) : DEFAULT_VIDEO_SUMMARY;
+            this.videoSummary.set(videoSummary);
+            return undefined;
+          } catch (e) {
+            console.log(e);
+            this.videoSummary.set(DEFAULT_VIDEO_SUMMARY);
+            return { kind: 'serverError', message: 'Failed to submit form' };
+          }
         },
       },
     },
