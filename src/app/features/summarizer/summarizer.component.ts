@@ -1,6 +1,18 @@
 import { Component, signal } from '@angular/core';
 import { form, FormField, FormRoot, pattern, readonly, required } from '@angular/forms/signals';
 
+interface VideoSummary {
+  summary: string;
+  topic?: string;
+  tags: string[];
+}
+
+const DEFAULT_VIDEO_SUMMARY: VideoSummary = {
+  summary: '',
+  topic: '',
+  tags: [],
+};
+
 @Component({
   imports: [FormField, FormRoot],
   selector: 'app-summarizer',
@@ -12,6 +24,8 @@ export default class SummarizerComponent {
     url: '',
     mime_type: 'video/mp4',
   });
+
+  videoSummary = signal<VideoSummary>(DEFAULT_VIDEO_SUMMARY);
 
   summarizerForm = form(
     this.summarizerModel,

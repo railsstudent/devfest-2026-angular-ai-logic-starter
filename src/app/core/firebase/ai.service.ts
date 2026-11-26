@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import type { Content, GenerativeContentBlob, TemplateGenerativeModel, TemplateRequest } from 'firebase/ai';
+import type { Content, TemplateGenerativeModel, TemplateRequest } from 'firebase/ai';
 import { ConfigService } from './config.service';
 
 @Service()
@@ -15,8 +15,8 @@ export class AiService {
     return Promise.resolve(undefined);
   }
 
-  async generateInlineData(request: TemplateRequest): Promise<GenerativeContentBlob | undefined> {
+  async generateInlineData(request: TemplateRequest): Promise<string> {
     console.log('Request', request);
-    return Promise.resolve(undefined);
+    return Promise.resolve('');
   }
 }

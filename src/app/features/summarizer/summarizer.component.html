@@ -35,4 +35,34 @@
       {{ isSubmitting ? 'Summarizing...' : 'Summarize' }}
     </button>
   </form>
+
+  @let summary = videoSummary();
+  <article aria-label="Video summary">
+    <header class="flex flex-col gap-1.5">
+      <h2 class="text-lg font-semibold text-primary">Video Summary</h2>
+      <p class="text-sm text-secondary">
+        <span class="font-semibold text-primary">Topic:</span>
+        {{ summary.topic || 'N/A' }}
+      </p>
+    </header>
+
+    <p class="text-sm sm:text-base text-secondary break-words">
+      {{ summary.summary || 'N/A' }}
+    </p>
+
+    @if (summary.tags.length > 0) {
+      <div class="flex flex-col gap-2 border-t border-surface-border/60 pt-3">
+        <span class="text-xs font-bold text-muted">Tags</span>
+        <ul class="flex flex-wrap gap-2">
+          @for (tag of summary.tags; track tag) {
+            <li
+              class="rounded-full border border-primary-accent/30 bg-primary-indigo/15 px-3 py-1 text-xs font-medium text-primary-accent"
+            >
+              {{ tag }}
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </article>
 </div>

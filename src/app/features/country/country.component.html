@@ -31,4 +31,34 @@
       {{ isSubmitting ? 'Generating...' : 'Generate' }}
     </button>
   </form>
+
+  <p class="mt-4 text-xs text-muted">
+    Template ID: <span class="font-mono text-secondary">{{ countryTemplateId() }}</span>
+  </p>
+
+  @if (imageUrl()) {
+    <article
+      aria-label="Generated image"
+      class="mt-6 flex flex-col gap-4 rounded-xl border border-surface-border bg-app-bg/70 p-5"
+    >
+      <header class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-lg font-semibold text-primary">Generated Image</h2>
+        @if (countryModel().country; as selectedCountry) {
+          <span
+            class="rounded-full border border-primary-accent/30 bg-primary-indigo/15 px-3 py-1 text-xs font-medium text-primary-accent"
+          >
+            {{ selectedCountry }}
+          </span>
+        }
+      </header>
+
+      <img
+        width="512"
+        height="512"
+        [src]="imageUrl()"
+        [alt]="countryModel().country ? 'Generated image for ' + countryModel().country : 'Generated image'"
+        class="mx-auto w-full max-w-[512px] rounded-lg border border-surface-border object-cover shadow-md"
+      />
+    </article>
+  }
 </div>

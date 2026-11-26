@@ -1,5 +1,5 @@
 import countryData from '@/public/countries.json';
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { form, FormField, FormRoot, required } from '@angular/forms/signals';
 
 @Component({
@@ -14,6 +14,9 @@ export default class CountryComponent {
   countryModel = signal({
     country: '',
   });
+
+  imageUrl = signal('');
+  countryTemplateId = computed(() => '');
 
   countryForm = form(
     this.countryModel,
