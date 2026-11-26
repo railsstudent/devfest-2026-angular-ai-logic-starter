@@ -5,7 +5,7 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: ROUTE_PATHS.COUNTRY,
+    redirectTo: ROUTE_PATHS.SUMMARIZER,
   },
   {
     path: ROUTE_PATHS.COUNTRY,
