@@ -1,22 +1,38 @@
 import { inject, Service } from '@angular/core';
-import type { Content, TemplateGenerativeModel, TemplateRequest } from 'firebase/ai';
+import type { Content, GenerativeContentBlob, TemplateGenerativeModel, TemplateRequest } from 'firebase/ai';
+import { getTemplateGenerativeModel } from 'firebase/ai';
 import { ConfigService } from './config.service';
 
 @Service()
 export class AiService {
-  // eslint-disable-next-line no-unused-private-class-members
-  #configService = inject(ConfigService);
-  // eslint-disable-next-line no-unused-private-class-members
+  #firebaseService = inject(ConfigService);
   #templateModel: TemplateGenerativeModel | null = null;
 
-  // TODO:  implement TemplateGenerativeModel to generate results
-  async generateResponse(request: TemplateRequest): Promise<Content | undefined> {
-    console.log('Request', request);
-    return Promise.resolve(undefined);
+  private getTemplateModel(): TemplateGenerativeModel {
+    if (!this.#templateModel) {
+      this.#templateModel = getTemplateGenerativeModel(this.#firebaseService.aiBackend);
+    }
+    return this.#templateModel;
   }
 
-  async generateInlineData(request: TemplateRequest): Promise<string> {
-    console.log('Request', request);
-    return Promise.resolve('');
+  async generateResponse(request: TemplateRequest): Promise<Content | undefined> {
+    const result = await this.getTemplateModel().generateContent(request);
+    const response = result.response;
+
+    const firstContent = (response.candidates || []).find((c) => c.content.parts.length > 0);
+    return firstContent?.content;
+  }
+
+  async generateInlineData(request: TemplateRequest): Promise<GenerativeContentBlob | undefined> {
+    const result = await this.getTemplateModel().generateContent(request);
+    const response = result.response;
+
+    const parts = response.inlineDataParts();
+    if (!parts) {
+      return undefined;
+    }
+
+    const imagePart = parts.find((part) => !!part);
+    return imagePart?.inlineData;
   }
 }
