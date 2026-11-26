@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import type { GenerativeContentBlob, Part, TemplateGenerativeModel, TemplateRequest } from 'firebase/ai';
+import type { Part, TemplateGenerativeModel, TemplateRequest } from 'firebase/ai';
 import { getTemplateGenerativeModel } from 'firebase/ai';
 import { ConfigService } from './config.service';
 
@@ -28,16 +28,16 @@ export class AiService {
     return undefined;
   }
 
-  async generateInlineData(request: TemplateRequest): Promise<GenerativeContentBlob | undefined> {
+  async generateInlineData(request: TemplateRequest): Promise<string> {
     const result = await this.getTemplateModel().generateContent(request);
     const response = result.response;
 
     const parts = response.inlineDataParts();
     if (!parts) {
-      return undefined;
+      return '';
     }
 
     const imagePart = parts.find((part) => !!part);
-    return imagePart?.inlineData;
+    return imagePart ? `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}` : '';
   }
 }

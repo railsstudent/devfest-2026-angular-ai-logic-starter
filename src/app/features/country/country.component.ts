@@ -1,5 +1,7 @@
+import { AiService } from '@/core/firebase/ai.service';
+import { ConfigService } from '@/core/firebase/config.service';
 import countryData from '@/public/countries.json';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { form, FormField, FormRoot, required } from '@angular/forms/signals';
 
 @Component({
@@ -10,13 +12,15 @@ import { form, FormField, FormRoot, required } from '@angular/forms/signals';
 })
 export default class CountryComponent {
   readonly countries = countryData.countries;
+  #aiService = inject(AiService);
+  #configService = inject(ConfigService);
 
   countryModel = signal({
     country: '',
   });
 
   imageUrl = signal('');
-  countryTemplateId = computed(() => '');
+  countryTemplateId = computed(() => this.#configService.appConfig().countryTemplateId);
 
   countryForm = form(
     this.countryModel,
@@ -25,9 +29,21 @@ export default class CountryComponent {
     },
     {
       submission: {
-        action: () => {
-          console.log('submitted', this.countryModel());
-          return Promise.resolve(undefined);
+        action: async () => {
+          try {
+            this.imageUrl.set('');
+            const result = await this.#aiService.generateInlineData({
+              templateId: this.countryTemplateId(),
+              templateVariables: this.countryModel(),
+            });
+
+            this.imageUrl.set(result);
+            return undefined;
+          } catch (e) {
+            console.log(e);
+            this.imageUrl.set('');
+            return { kind: 'serverError', message: 'Failed to submit form' };
+          }
         },
       },
     },
