@@ -1,4 +1,7 @@
 {
+  "remoteconfig": {
+    "template": "firebase/remote-config-template.json"
+  },
   "emulators": {
     "apphosting": {
       "port": 5005,
