@@ -1,12 +1,13 @@
 import firebaseConfig from '@/public/firebase.config.json';
 import remoteConfigDefault from '@/public/remote-config-defaults.json';
-import { isDevMode, Service, signal } from '@angular/core';
+import { DestroyRef, inject, isDevMode, Service, signal } from '@angular/core';
 import type { AI } from 'firebase/ai';
 import { getAI, GoogleAIBackend } from 'firebase/ai';
 import type { FirebaseApp } from 'firebase/app';
 import { initializeApp } from 'firebase/app';
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
-import { fetchAndActivate, getRemoteConfig, getString } from 'firebase/remote-config';
+import type { RemoteConfig, Unsubscribe } from 'firebase/remote-config';
+import { activate, fetchAndActivate, getRemoteConfig, getString, onConfigUpdate } from 'firebase/remote-config';
 
 export interface AppRemoteConfig {
   countryTemplateId: string;
@@ -28,6 +29,18 @@ export class ConfigService {
 
   #firebaseApp: FirebaseApp | null = null;
   #ai: AI | null = null;
+
+  #unsubscribe: Unsubscribe | null = null;
+  #destroyRef = inject(DestroyRef);
+
+  constructor() {
+    this.#destroyRef.onDestroy(() => {
+      if (this.#unsubscribe) {
+        this.#unsubscribe();
+        this.#unsubscribe = null;
+      }
+    });
+  }
 
   get app(): FirebaseApp {
     if (!this.#firebaseApp) {
@@ -78,9 +91,37 @@ export class ConfigService {
         summarizeTemplateId: getString(rc, 'summarizeTemplateId'),
         countryTemplateId: getString(rc, 'countryTemplateId'),
       });
-      console.log(this.#appConfig());
+      this.registerRemoteConfigListener(rc);
     } catch (e) {
       console.warn('Remote Config fetch timed out or failed. Using defaults:', e);
     }
+  }
+
+  private registerRemoteConfigListener(remoteConfig: RemoteConfig): void {
+    if (this.#unsubscribe) {
+      return;
+    }
+
+    this.#unsubscribe = onConfigUpdate(remoteConfig, {
+      next: async (configUpdated) => {
+        try {
+          console.log(configUpdated.getUpdatedKeys());
+          await activate(remoteConfig);
+          this.#appConfig.set({
+            summarizeTemplateId: getString(remoteConfig, 'summarizeTemplateId'),
+            countryTemplateId: getString(remoteConfig, 'countryTemplateId'),
+          });
+        } catch (e) {
+          // swallow error
+          console.warn('Error in onConfigUpdate():', e);
+        }
+      },
+      error: (error) => {
+        console.log('Config update error:', error);
+      },
+      complete: () => {
+        console.log('Listening stopped.');
+      },
+    });
   }
 }
