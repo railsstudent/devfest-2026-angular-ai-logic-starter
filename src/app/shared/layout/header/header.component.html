@@ -1,8 +1,16 @@
-<header class="header-card">
+<header class="header-card flex-col gap-4">
   <h2 class="header-title">Firebase AI Logic Server Prompt Template Demo</h2>
-  @for (item of links; track item.link) {
-    <a [routerLink]="item.link" [attr.aria-label]="item.alt">
-      {{ item.text }}
-    </a>
-  }
+  <nav aria-label="Primary" class="flex flex-wrap items-center justify-center gap-3">
+    @for (item of links; track item.link) {
+      <a
+        [routerLink]="item.link"
+        routerLinkActive="border-primary-accent! bg-primary-indigo/25 font-semibold text-primary!"
+        ariaCurrentWhenActive="page"
+        [attr.aria-label]="item.alt"
+        class="rounded-full border border-surface-border bg-surface-card px-4 py-2 text-sm font-medium text-secondary transition-all hover:border-surface-hover hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-accent"
+      >
+        {{ item.text }}
+      </a>
+    }
+  </nav>
 </header>
